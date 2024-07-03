@@ -1,7 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
-import { pool } from '../config/db.js'; // Asegúrate de que estás importando correctamente tu pool de conexión
+import { pool } from '../config/db.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Obtener __dirname en el contexto de ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Asegúrate de que la carpeta 'pdfs' exista
+const pdfDir = path.join(__dirname, '..', 'pdfs');
+if (!fs.existsSync(pdfDir)) {
+  fs.mkdirSync(pdfDir);
+}
 
 // Función para crear un nuevo detalle de encuesta
 export const createDetail = async (req, res) => {
@@ -93,26 +105,73 @@ export const saveReport = async (id_cita, id_detalles_encuesta, pdfPath) => {
 
 // Función para obtener un detalle de encuesta por ID
 export const getDetail = async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      const [result] = await pool.query('SELECT * FROM detalles_encuesta WHERE id = ?', [id]);
-  
-      if (result.length === 0) {
-        return res.status(404).json({ message: 'Detalle de encuesta no encontrado' });
-      }
-  
-      res.status(200).json(result[0]);
-    } catch (error) {
-      console.error('Error al obtener el detalle de encuesta:', error);
-      res.status(500).json({ message: 'Error al obtener el detalle de encuesta' });
+  const { id } = req.params;
+
+  try {
+    const [result] = await pool.query('SELECT * FROM detalles_encuesta WHERE id = ?', [id]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Detalle de encuesta no encontrado' });
     }
-  };
-  
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error('Error al obtener el detalle de encuesta:', error);
+    res.status(500).json({ message: 'Error al obtener el detalle de encuesta' });
+  }
+};
+
+// Función para obtener reportes por ID de cita
+export const getReportsByCita = async (req, res) => {
+  const { id_cita } = req.params;
+
+  try {
+    const [result] = await pool.query('SELECT * FROM reportes WHERE id_cita = ?', [id_cita]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron reportes para la cita especificada' });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error al obtener los reportes:', error);
+    res.status(500).json({ message: 'Error al obtener los reportes' });
+  }
+};
+
+export const getDetailsByCita = async (req, res) => {
+  const { id_cita } = req.params;
+
+  try {
+    const [result] = await pool.query('SELECT * FROM detalles_encuesta WHERE id_cita = ?', [id_cita]);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error al obtener detalles de encuesta por id_cita:', error);
+    res.status(500).json({ message: 'Error al obtener detalles de encuesta por id_cita' });
+  }
+};
+
+// Función para obtener todos los reportes
+export const getAllReports = async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT * FROM reportes');
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron reportes' });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error al obtener los reportes:', error);
+    res.status(500).json({ message: 'Error al obtener los reportes' });
+  }
+};
+
 // Función para generar un PDF y guardarlo como LONGBLOB en la base de datos
 export const generatePDFAndSave = async (id_cita, id_detalles_encuesta) => {
   const doc = new PDFDocument();
-  const pdfPath = path.join(__dirname, '..', 'pdfs', `reporte_${id_cita}.pdf`);
+  const pdfPath = path.join(pdfDir, `reporte_${id_cita}.pdf`);
 
   doc.pipe(fs.createWriteStream(pdfPath));
   

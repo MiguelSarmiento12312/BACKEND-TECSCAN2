@@ -6,38 +6,27 @@ import pacientesRoutes from './routes/pacienteRoutes.js';
 import citaRoutes from './routes/citaRoutes.js';
 import encuestaRoutes from './routes/encuestaRoutes.js';
 import reporteRoutes from './routes/reporteRoutes.js';
-import { pool } from './config/db.js'; // Asegúrate de que estás importando correctamente tu pool de conexión
+import { pool } from './config/db.js';
 
 dotenv.config();
 
 const app = express();
 
-app.use(bodyParser.json()); // Middleware para parsear JSON en las peticiones
+app.use(bodyParser.json());
 
-// Middleware para manejar CORS si es necesario
+// Middleware para manejar CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   next();
 });
 
-// Rutas de médicos
+// Rutas
 app.use('/medicos', medicoRoutes);
-
-// Rutas de pacientes
 app.use('/pacientes', pacientesRoutes);
-
-// Rutas de citas
 app.use('/citas', citaRoutes);
-
-// Rutas de encuestas
 app.use('/encuestas', encuestaRoutes);
-
-// Rutas de reportes
 app.use('/reportes', reporteRoutes);
 
 // Middleware para manejar errores de ruta no encontrada

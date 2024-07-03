@@ -36,3 +36,17 @@ export const createCita = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getCitaById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await pool.query('SELECT * FROM citas WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            res.status(404).json({ message: 'Cita no encontrada' });
+        } else {
+            res.json(rows[0]);
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
