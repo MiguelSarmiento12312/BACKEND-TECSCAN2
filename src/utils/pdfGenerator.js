@@ -1,28 +1,61 @@
+//src/utils/pdfGenerator.js
 import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
-import { saveReport } from '../controllers/reporteController'; // Asegúrate de importar tu función para guardar el reporte
 
-export const generatePDF = async (id_cita, id_detalles_encuesta) => {
-    const doc = new PDFDocument();
-    const pdfPath = path.join(__dirname, '..', 'pdfs', `reporte_${id_cita}.pdf`);
-
-    doc.pipe(fs.createWriteStream(pdfPath));
-    
-    // Generar contenido del PDF
-    doc.text(`Reporte para Cita ID: ${id_cita}`);
-    doc.text(`Detalles de Encuesta ID: ${id_detalles_encuesta}`);
-    // Agregar más contenido según sea necesario
-
-    doc.end();
-
+export const generatePDF = (
+  id_cita,
+  detallesEncuesta,
+  nombre_paciente,
+  tipo_cita,
+  nombre_medico
+) => {
+  return new Promise((resolve, reject) => {
     try {
-        // Guardar el PDF como LONGBLOB en la base de datos
-        const reportId = await saveReport(id_cita, id_detalles_encuesta, pdfPath);
-        console.log(`Reporte generado y guardado con ID: ${reportId}`);
-        return reportId; // Opcional: puedes devolver el ID del reporte guardado
+      const doc = new PDFDocument();
+      const pdfPath = path.join(__dirname, '..', 'pdfs', `reporte_${id_cita}.pdf`);
+
+      // Crear flujo de escritura para el PDF
+      const writeStream = fs.createWriteStream(pdfPath);
+      doc.pipe(writeStream);
+
+      // Generar el contenido del PDF
+      doc.fontSize(20).text('Reporte de Cita', { align: 'center' });
+      doc.moveDown();
+
+      doc.fontSize(12).text(`ID de Cita: ${id_cita}`);
+      doc.text(`Nombre del Paciente: ${nombre_paciente}`);
+      doc.text(`Nombre del Médico: ${nombre_medico}`);
+      doc.text(`Tipo de Cita: ${tipo_cita}`);
+      doc.moveDown();
+
+      doc.text('Detalles de la Encuesta:');
+      doc.text(`- Nivel de Salud: ${detallesEncuesta.nivel_salud}`);
+      doc.text(`- Comentarios: ${detallesEncuesta.comentarios}`);
+      doc.text(`- Presión Arterial Sistólica: ${detallesEncuesta.presion_arterial_sistolica}`);
+      doc.text(`- Presión Arterial Diastólica: ${detallesEncuesta.presion_arterial_diastolica}`);
+      doc.text(`- Frecuencia Cardíaca: ${detallesEncuesta.frecuencia_cardiaca}`);
+      doc.text(`- Frecuencia Respiratoria: ${detallesEncuesta.frecuencia_respiratoria}`);
+      doc.text(`- Peso: ${detallesEncuesta.peso}`);
+      doc.text(`- Altura: ${detallesEncuesta.altura}`);
+      doc.text(`- IMC: ${detallesEncuesta.imc}`);
+      doc.text(`- Diagnóstico: ${detallesEncuesta.diagnostico}`);
+      doc.text(`- Tratamiento: ${detallesEncuesta.tratamiento}`);
+      doc.text(`- Nivel de Dolor: ${detallesEncuesta.nivel_dolor}`);
+      doc.text(`- Alergias: ${detallesEncuesta.alergias}`);
+      doc.text(`- Medicamentos Actuales: ${detallesEncuesta.medicamentos_actuales}`);
+
+      doc.end();
+
+      writeStream.on('finish', () => {
+        resolve(pdfPath);
+      });
+
+      writeStream.on('error', (error) => {
+        reject(error);
+      });
     } catch (error) {
-        console.error(`Error al guardar el reporte en la base de datos: ${error.message}`);
-        throw error;
+      reject(error);
     }
+  });
 };

@@ -1,4 +1,4 @@
-// db.js
+//db.js
 
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
@@ -6,6 +6,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
+
+// Agregar console.log para verificar las variables de entorno
+console.log({
+  DB_HOST,
+  DB_USER,
+  DB_PASSWORD: DB_PASSWORD ? '***' : '(empty)',
+  DB_NAME,
+  DB_PORT
+});
 
 const pool = mysql.createPool({
   host: DB_HOST,

@@ -1,4 +1,3 @@
-// src/middlewares/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/db.js';
 
@@ -6,7 +5,9 @@ const authMiddleware = async (req, res, next) => {
   const token = req.headers['authorization'];
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Token no proporcionado' });
+    // Si no hay token, permitir que la solicitud continúe sin autenticación
+    req.medico = null;
+    return next();
   }
 
   try {
@@ -17,7 +18,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Usuario no encontrado' });
     }
 
-    req.medico = rows[0];
+    req.medico = rows[0]; // Almacena los datos del médico en req.medico
     next();
   } catch (error) {
     console.error('Error durante la autenticación:', error);

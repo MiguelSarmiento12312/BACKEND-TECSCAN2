@@ -7,35 +7,26 @@ const loginController = {
     const { email, password } = req.body;
 
     try {
-      // Buscar al médico en la base de datos por su correo electrónico
-      const [rows] = await pool.query('SELECT id, nombre, apellido, email, password FROM medicos WHERE email = ?', [email]);
+      const [rows] = await pool.query(
+        'SELECT id, nombre, apellido, email, password, especialidad, telefono FROM medicos WHERE email = ?', 
+        [email]
+      );
 
-      // Si no se encuentra ningún médico con el correo electrónico proporcionado, devolver un error de autenticación
       if (rows.length === 0) {
         return res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
       }
 
-      // Obtener el primer médico encontrado (debería ser único debido a la restricción UNIQUE en la columna email)
       const medico = rows[0];
-
-      // Comparar la contraseña proporcionada con la contraseña almacenada en la base de datos
       const passwordMatch = await bcrypt.compare(password, medico.password);
 
-      // Depuración: Mostrar las contraseñas para verificar
-      console.log('Contraseña proporcionada:', password);
-      console.log('Contraseña almacenada:', medico.password);
-
-      // Si las contraseñas no coinciden, devolver un error de autenticación
       if (!passwordMatch) {
         return res.status(401).json({ success: false, message: 'Contraseña incorrecta' });
       }
 
-      // Generar un token de autenticación usando JWT
       const token = jwt.sign({ id: medico.id, email: medico.email }, process.env.JWT_SECRET, {
-        expiresIn: '1h' // El token expira en 1 hora
+        expiresIn: '1h'
       });
 
-      // Devolver el token de autenticación y la información del médico como respuesta
       return res.status(200).json({ 
         success: true, 
         token,
@@ -43,12 +34,50 @@ const loginController = {
           id: medico.id,
           nombre: medico.nombre,
           apellido: medico.apellido,
-          email: medico.email
+          email: medico.email,
+          especialidad: medico.especialidad,
+          telefono: medico.telefono
         }
       });
     } catch (error) {
       console.error('Error durante el inicio de sesión:', error);
-      // Si hay un error durante el proceso de inicio de sesión, devolver un error de servidor
+      return res.status(500).json({ success: false, message: 'Error en el servidor' });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    const { id } = req.user; // Asumiendo que el ID del médico está disponible en req.user después de la autenticación
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+      const [rows] = await pool.query(
+        'SELECT password FROM medicos WHERE id = ?',
+        [id]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Médico no encontrado' });
+      }
+
+      const medico = rows[0];
+      const passwordMatch = await bcrypt.compare(currentPassword, medico.password);
+
+      if (!passwordMatch) {
+        return res.status(401).json({ success: false, message: 'Contraseña actual incorrecta' });
+      }
+
+      // Hashear la nueva contraseña
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      // Actualizar la contraseña en la base de datos
+      await pool.query(
+        'UPDATE medicos SET password = ? WHERE id = ?',
+        [hashedNewPassword, id]
+      );
+
+      return res.status(200).json({ success: true, message: 'Contraseña actualizada correctamente' });
+    } catch (error) {
+      console.error('Error al cambiar la contraseña:', error);
       return res.status(500).json({ success: false, message: 'Error en el servidor' });
     }
   }
