@@ -7,11 +7,11 @@ const router = Router();
 // Ruta para obtener todas las encuestas
 router.get('/', getEncuestas);  
 // Ruta para crear una nueva encuesta
-router.post('/', createEncuesta);  
+router.post('/crearencuesta', createEncuesta);  
 // Ruta para obtener encuestas por id_cita
-router.get('/by-cita/:id_cita', getEncuestasByCita);  
-// Ruta para generar y guardar un PDF
-router.post('/generate-pdf', generatePDFAndSave);  
+router.get('/:cita_id', getEncuestasByCita); 
+
+router.post('/generate-pdf/:cita_id', generatePDFAndSave);
 
 // Nueva ruta para servir el PDF
 router.get('/pdf/:id_cita', (req, res) => {

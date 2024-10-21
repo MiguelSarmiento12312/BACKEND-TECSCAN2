@@ -13,16 +13,25 @@
   "license": "ISC",
   "description": "Servidor backend para la aplicación médica TecScan.",
   "dependencies": {
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.19.2",
     "express-validator": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.10.0",
+    "nodemailer": "^6.9.15",
+    "pdf-lib": "^1.17.1",
     "pdfkit": "^0.15.0",
-    "pdfkit-table": "^0.1.99"
+    "pdfkit-table": "^0.1.99",
+    "pdfmake": "^0.2.14",
+    "qrcode": "^1.5.4",
+    "react-router-dom": "^6.26.2",
+    "sequelize": "^6.37.4",
+    "sequelize-mysql": "^1.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.2"

@@ -1,12 +1,19 @@
-import { Router } from 'express';
-import { getReportes, saveReporte } from '../controllers/reporteController.js';
+import express from 'express';
+import {
+    crearReporte,
+    obtenerReportesPorCita,
+    obtenerTodosLosReportes,
+} from '../controllers/reporteController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Obtener todos los reportes
-router.get('/', getReportes); // Opcional, si decides mantener un listado de PDFs
+// Ruta para crear un nuevo reporte
+router.post('/crear-reporte', crearReporte);
 
-// Guardar un reporte
-router.post('/', saveReporte); // Almacenar información del reporte generado
+// Ruta para obtener todos los reportes
+router.get('/', obtenerTodosLosReportes);
+
+// Ruta para obtener reportes por cita
+router.get('/cita/:citaId', obtenerReportesPorCita);
 
 export default router;

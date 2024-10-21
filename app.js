@@ -1,5 +1,3 @@
-// app.js
-
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
@@ -8,14 +6,17 @@ import pacientesRoutes from './src/routes/pacienteRoutes.js';
 import citaRoutes from './src/routes/citaRoutes.js';
 import encuestaRoutes from './src/routes/encuestaRoutes.js';
 import reporteRoutes from './src/routes/reporteRoutes.js';
-import { pool } from './src/config/db.js';
-import path from 'path'; // Importar path
-import { fileURLToPath } from 'url'; // Importar fileURLToPath
-import { dirname } from 'path'; // Importar dirname
+import administradorRoutes from './src/routes/adminRoutes.js';
+import { sequelize } from './src/config/db.js'; // Asegúrate de que aquí importas tu conexión de Sequelize
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Importar modelos y establecer asociaciones
+import './src/models/associations.js'; // Asegúrate de importar las asociaciones aquí
 
 dotenv.config();
 
-// Obtener __dirname en un módulo ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -23,7 +24,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// Middleware para manejar CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -31,24 +31,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// Servir archivos estáticos desde la carpeta 'src/pdfs'
 app.use('/pdf', express.static(path.join(__dirname, 'src/pdfs')));
 
-// Rutas
 app.use('/medicos', medicoRoutes);
 app.use('/pacientes', pacientesRoutes);
 app.use('/citas', citaRoutes);
 app.use('/encuestas', encuestaRoutes);
 app.use('/reportes', reporteRoutes);
+app.use('/admin', administradorRoutes);
 
-// Middleware para manejar errores de ruta no encontrada
 app.use((req, res, next) => {
   const error = new Error('Not found');
   error.status = 404;
   next(error);
 });
 
-// Middleware para manejar otros errores
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({
@@ -60,15 +57,23 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const syncModels = async () => {
+  try {
+    await sequelize.sync(); // Sincronizar modelos
+    console.log('Modelos sincronizados con la base de datos');
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error al sincronizar los modelos:', error);
+  }
+};
 
-// Manejar la terminación del servidor y cerrar conexiones de base de datos si es necesario
+syncModels(); 
+
 process.on('SIGINT', () => {
-  pool.end(() => {
-    console.log('Database pool closed');
+  sequelize.close().then(() => {
+    console.log('Database connection closed');
     process.exit(0);
   });
 });

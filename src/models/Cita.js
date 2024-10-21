@@ -1,23 +1,44 @@
-// controllers/pacienteController.js
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/db.js';
 
-import { pool } from '../config/db.js';
-
-export const getIdCitaByIdPaciente = async (idPaciente) => {
-  try {
-    // Consulta SQL para obtener id_cita por id_paciente
-    const query = `
-      SELECT id_cita
-      FROM citas
-      WHERE id_paciente = ?
-      ORDER BY id_cita DESC
-      LIMIT 1
-    `;
-    const [rows] = await pool.query(query, [idPaciente]);
-    if (rows.length === 0) {
-      throw new Error('No se encontró ninguna cita para el paciente');
+const Cita = sequelize.define('Cita', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    fecha: {
+        type: DataTypes.DATE,
+        allowNull: false,
+    },
+    hora: {
+        type: DataTypes.TIME,
+        allowNull: false,
+    },
+    id_medico: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'medicos', 
+            key: 'id'
+        }
+    },
+    id_paciente: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'pacientes',
+            key: 'id'
+        }
+    },
+    estado: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 1 
     }
-    return rows[0].id_cita;
-  } catch (error) {
-    throw new Error(`Error al obtener id_cita: ${error.message}`);
-  }
-};
+}, {
+    tableName: 'citas',
+    timestamps: false, 
+});
+
+export default Cita;
