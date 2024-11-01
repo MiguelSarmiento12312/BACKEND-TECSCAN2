@@ -12,7 +12,7 @@ export const getPacientes = async (req, res) => {
 };
 
 // Obtener el id de la cita por el id del paciente
-export const getIdCitaByPacienteId = async (idPaciente) => {
+export const getIdCitaByid_paciente = async (idPaciente) => {
   try {
     const cita = await Cita.findOne({ where: { id_paciente: idPaciente } }); // Asegúrate de que el nombre de la columna sea correcto
     return cita ? cita.id : null; // Devuelve el ID de la cita si existe, o null si no
@@ -29,7 +29,7 @@ export const getPacienteByCitaId = async (idCita) => {
       where: { id: idCita },
       include: {
         model: Paciente,
-        as: 'Paciente', // Alias basado en la relación definida en relaciones.js
+        as: 'paciente', // Usa el mismo alias que definiste en el modelo
       },
     });
 
@@ -37,10 +37,9 @@ export const getPacienteByCitaId = async (idCita) => {
       throw new Error('Cita no encontrada');
     }
 
-    // Retornar el paciente asociado a la cita
-    return cita.Paciente;
+    return cita.paciente; // Devuelve el paciente asociado a la cita
   } catch (err) {
-    throw new Error('Error al obtener el paciente: ' + err.message);
+    throw new Error('Error al buscar el paciente: ' + err.message);
   }
 };
 
@@ -50,7 +49,7 @@ export const getIdCitaByIdPaciente = async (req, res) => {
 
   try {
     // Llamar a la función para obtener id_cita por id_paciente
-    const idCita = await getIdCitaByPacienteId(idPaciente);
+    const idCita = await getIdCitaByid_paciente(idPaciente);
 
     if (!idCita) {
       return res.status(404).json({ error: 'No se encontró cita asociada con este paciente.' });

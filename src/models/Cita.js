@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/db.js';
+import Paciente from './Paciente.js'; // Asegúrate de importar el modelo Paciente
+import Medico from './Medico.js'; // Asegúrate de importar el modelo Medico
 
 const Cita = sequelize.define('Cita', {
     id: {
@@ -10,6 +12,14 @@ const Cita = sequelize.define('Cita', {
     fecha: {
         type: DataTypes.DATE,
         allowNull: false,
+        validate: {
+            isDate: true, // Asegura que sea una fecha válida
+            isFuture(value) {
+                if (new Date(value) < new Date()) {
+                    throw new Error('La fecha no puede estar en el pasado.');
+                }
+            }
+        }
     },
     hora: {
         type: DataTypes.TIME,
@@ -19,26 +29,33 @@ const Cita = sequelize.define('Cita', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'medicos', 
+            model: Medico, // Se refiere al modelo Medico
             key: 'id'
         }
     },
     id_paciente: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         references: {
-            model: 'pacientes',
+            model: Paciente, // Se refiere al modelo Paciente
             key: 'id'
-        }
+        },
+        allowNull: false,
     },
     estado: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.ENUM('1', '0'), // Ejemplo de uso de ENUM
         allowNull: false,
-        defaultValue: 1 
+        defaultValue: '1' 
     }
 }, {
     tableName: 'citas',
-    timestamps: false, 
+    timestamps: false, // Cambiar a true si deseas usar timestamps
 });
+
+// Definición de relaciones
+Cita.associate = (models) => {
+    Cita.hasMany(models.DetallesEncuesta, { foreignKey: 'cita_id' });
+    Cita.belongsTo(models.Medico, { foreignKey: 'id_medico', as: 'medico' });
+    Cita.belongsTo(models.Paciente, { foreignKey: 'id_paciente', as: 'paciente' }); // Asociación correcta con Paciente
+};
 
 export default Cita;

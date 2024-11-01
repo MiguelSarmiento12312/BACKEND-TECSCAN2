@@ -237,7 +237,7 @@ export const generatePDFAndSave = async (req, res) => {
         // Obtener información de la cita incluyendo el paciente
         const cita = await Cita.findOne({
             where: { id: cita_id },
-            include: [{ model: Paciente, as: 'paciente' }]
+            include: [{ model: Paciente, as: 'paciente' }] // El alias debe coincidir con el definido en el modelo
         });
 
         if (!cita || !cita.paciente) {

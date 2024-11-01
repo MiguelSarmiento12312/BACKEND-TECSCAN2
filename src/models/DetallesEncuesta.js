@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/db.js';
-import Citas from '../models/Cita.js'
+import Cita from './Cita.js'; 
+
 const DetallesEncuesta = sequelize.define('DetallesEncuesta', {
     id: {
         type: DataTypes.INTEGER,
@@ -88,6 +89,7 @@ const DetallesEncuesta = sequelize.define('DetallesEncuesta', {
     timestamps: false, 
 });
 
-DetallesEncuesta.belongsTo(Citas, { foreignKey: 'cita_id', targetKey: 'id' });
+// Definir la relación
+DetallesEncuesta.belongsTo(Cita, { foreignKey: 'cita_id', targetKey: 'id' });
 
 export default DetallesEncuesta;

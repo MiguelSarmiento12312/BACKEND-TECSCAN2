@@ -127,7 +127,7 @@ const medicoController = {
       );
 
       // Responder con éxito
-      return res.status(201).json({ success: true, message: 'Registro exitoso', medicoId: result.insertId });
+      return res.status(201).json({ success: true, message: 'Registro exitoso', id_medico: result.insertId });
     } catch (error) {
       console.error('Error durante el registro:', error);
       return res.status(500).json({ success: false, message: 'Error en el servidor' });
