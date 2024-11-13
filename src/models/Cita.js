@@ -45,6 +45,10 @@ const Cita = sequelize.define('Cita', {
         type: DataTypes.ENUM('1', '0'), // Ejemplo de uso de ENUM
         allowNull: false,
         defaultValue: '1' 
+    },
+    qr_path: {
+        type: DataTypes.STRING,
+        allowNull: true, // La ruta del QR es opcional hasta que se genere el código
     }
 }, {
     tableName: 'citas',

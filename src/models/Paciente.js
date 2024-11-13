@@ -66,6 +66,10 @@ const Paciente = sequelize.define('Paciente', {
         type: DataTypes.STRING(8),
         allowNull: false,
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 }, {
     tableName: 'pacientes',
     timestamps: false, 

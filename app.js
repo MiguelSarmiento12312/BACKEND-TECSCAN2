@@ -37,9 +37,13 @@ app.use(cors({
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
-app.use('/pdf', express.static(path.join(__dirname, 'src/pdfs')));
+// Servir archivos estáticos desde la carpeta 'qrs'
+app.use('/qrs', express.static(path.join(__dirname, 'src', 'qrs')));
 
-// Rutas
+// Servir archivos estáticos de PDF
+app.use('/pdf', express.static(path.join(__dirname, 'src', 'pdfs')));
+
+// Rutas de la API
 app.use('/medicos', medicoRoutes);
 app.use('/pacientes', pacientesRoutes);
 app.use('/citas', citaRoutes);
@@ -86,7 +90,7 @@ const syncModels = async () => {
   }
 };
 
-syncModels(); 
+syncModels();
 
 process.on('SIGINT', () => {
   sequelize.close().then(() => {

@@ -92,14 +92,14 @@ const sendEmail = async (email, qrCode) => {
 
 // Obtener las citas por ID del médico
 export const getCitasByMedicoId = async (req, res) => {
-    const { id_medico } = req.params; // Obtener el id del médico de los parámetros de la solicitud
+    const { id_medico } = req.params;
     try {
         const [rows] = await pool.query(`
             SELECT c.*, p.nombre AS nombre_paciente
             FROM citas c
             LEFT JOIN pacientes p ON c.id_paciente = p.id
             WHERE c.id_medico = ?
-        `, [id_medico]); // Usar id_medico en la consulta
+        `, [id_medico]);
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'No hay citas encontradas para este médico' });
@@ -111,12 +111,10 @@ export const getCitasByMedicoId = async (req, res) => {
     }
 };
 
-
 // Obtener una cita por ID con información del paciente
 export const getCitaById = async (req, res) => {
     const { id } = req.params;
     try {
-        // Consulta para obtener la cita y la información del paciente relacionado
         const [rows] = await pool.query(`
             SELECT c.*, p.nombre, p.dni, p.email, p.direccion, p.fecha_nacimiento, p.estado_civil, p.ocupacion
             FROM citas c
@@ -128,7 +126,6 @@ export const getCitaById = async (req, res) => {
             return res.status(404).json({ message: 'Cita no encontrada' });
         }
 
-        // Devolver la cita con la información del paciente
         res.json(rows[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -149,7 +146,7 @@ export const getCitasByid_paciente = async (id_paciente) => {
 
 // Manejar el escaneo del DNI
 export const handleDniScan = async (req, res) => {
-    const { dniEscaneado } = req.body; // Suponiendo que el DNI escaneado se envía en el cuerpo de la solicitud
+    const { dniEscaneado } = req.body;
 
     try {
         const id_paciente = await getid_pacienteByDni(dniEscaneado);

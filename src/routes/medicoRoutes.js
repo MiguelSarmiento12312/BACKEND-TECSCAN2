@@ -17,9 +17,9 @@ router.get('/info', medicoController.getAllMedicos); // Cambiado para que devuel
 router.get('/', medicoController.getAllMedicos);
 
 // Ruta para modificar la información de un médico
-router.put('/:id', medicoController.updateMedico); // Agregada para actualizar un médico
+router.put('/:id', medicoController.updateMedico); // Actualización del médico
 
-// Ruta para actualizar información del médico (incluyendo cambiar la contraseña)
-router.put('/editarmedico/:id', medicoController.updateMedico);
+// Ruta para obtener un médico por su id
+router.get('/:id', medicoController.getMedicoById);
 
 export default router;

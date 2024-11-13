@@ -17,6 +17,27 @@ const medicoController = {
     }
   },
 
+  getMedicoById: async (req, res) => {
+    const { id } = req.params; // Obtener el id del parámetro de la ruta
+    
+    try {
+      // Hacer la consulta para obtener el médico por id
+      const [rows] = await pool.query(
+        'SELECT id, nombre, apellido, email, especialidad, telefono FROM medicos WHERE id = ?',
+        [id]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Médico no encontrado' });
+      }
+
+      res.status(200).json({ success: true, medico: rows[0] });
+    } catch (error) {
+      console.error('Error al obtener el médico:', error);
+      res.status(500).json({ success: false, message: 'Error al obtener el médico' });
+    }
+  },
+
   // Iniciar sesión para médicos
   login: async (req, res) => {
     const { email, password } = req.body;

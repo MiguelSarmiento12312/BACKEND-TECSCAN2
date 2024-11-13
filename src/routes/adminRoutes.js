@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import adminController from '../controllers/adminController.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+// Obtener el nombre del archivo actual y su directorio
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Crear el router
 const router = Router();
 
 // Rutas de autenticación del administrador
@@ -28,6 +35,7 @@ router.get('/citas/:id', adminController.getCitaById);         // Obtener una ci
 router.post('/citas', adminController.createCita);             // Crear una nueva cita
 router.put('/citas/:id', adminController.updateCita);          // Actualizar una cita por ID
 router.delete('/citas/:id', adminController.deleteCita);       // Eliminar una cita por ID
+router.delete('/citas', adminController.deleteManyCitas);      // Ruta para eliminar múltiples citas
 
 // Rutas para Encuestas
 router.get('/encuestas', adminController.getAllEncuestas); // Obtener todas las encuestas
